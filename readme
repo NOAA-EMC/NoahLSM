@@ -1,0 +1,10 @@
+This is the repository for Noah LSM version 2.7.GFS
+
+It contains the complete, selfcontained Noah LSM source code file, input control file, input atmospheric forcing file, and example execution-time LSM output files for a full one-year 1998 simulation. This simulation is valid at the Champaign, Illinois surface-flux site (40.01 N, 88.37 W) of NOAA/ARL investigator
+Tilden Meyers. 
+
+doc:documentation and user's guide of Noah LSM
+exec: executable 
+plot: compare test run with the observation
+sorc: source code from fv3gfs + offline driver
+test: forcing data at Champaign, Illinois surface-flux site (40.01 N, 88.37 W) 

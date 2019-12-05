@@ -1,0 +1,1182 @@
+THE COMMUNITY 
+Noah LAND-SURFACE MODEL (LSM)
+
+
+
+User's Guide
+Public Release Version 2.7.1
+
+Last Updated Feb. 9 2005
+
+This document is filename NOAH_LSM_USERGUIDE_2.7.1 doc at
+
+ftp://ftp.emc.ncep.noaa.gov/mmb/gcp/ldas/noahlsm/ver_2.7.1
+
+Author: Kenneth Mitchell (NCEP/EMC)
+Point of Contact: Vince.Wong@noaa.gov, phone 301-316-5029
+
+Collaborators: Mike Ek, Vince Wong, Dag Lohmann, Victor Koren, John Schaake, Qingyun 
+Duan, George Gayno, Brian Moore, Pablo Grunmann, Dan Tarpley, Bruce Ramsay, Fei Chen, 
+Jinwon Kim, Hua-Lu Pan, Ying Lin, Curtis Marshall, Larry Mahrt, Tilden Meyers, Paul Ruscher 
+
+TABLE OF CONTENTS
+
+1.0	 Introduction
+2.0	  	 Model Heritage
+3.0	  	 Directory Contents and Quick-Start Guide to Execution
+4.0	  	 Subroutine Summary and Calling Tree
+5.0	  	 Control File Contents and Function
+6.0	  	 Input Atmospheric Forcing File
+7.0	  	 LSM Initial Conditions
+8.0	       Specifying Model Parameters
+9.0	  	 Execution Output Files
+10.0	Technical References
+
+1.0	 INTRODUCTION
+
+This User's Guide provides execution guidance for and physical description of the public version 
+of the community Noah LSM.  This version of the Noah LSM is a stand-alone, uncoupled, 1-D 
+column version used to execute single-site land-surface simulations.  In this traditional 1-D 
+uncoupled mode, near-surface atmospheric forcing data is required as input forcing (see Sec 6.0).  
+This LSM simulates soil moisture (both liquid and frozen), soil temperature, skin temperature, 
+snowpack depth, snowpack water equivalent (and hence snowpack density), canopy water 
+content, and the energy flux and water flux terms of the surface energy balance and surface water 
+balance.  See Sec 10 for the lineage of key technical references.
+
+The public server directory in which this User's Guide resides also contains the complete, self-
+contained Noah LSM source code file, input control file, input atmospheric forcing file, and 
+example execution-time LSM output files for a full one-year 1998 simulation.  This simulation is 
+valid at the Champaign, Illinois surface-flux site (40.01 N, 88.37 W) of NOAA/ARL investigator 
+Tilden Meyers.  See Sec 3 for a "Quick-Start" guide to executing the Noah LSM code in this 
+directory to duplicate the cited 1998 simulation at this site.  To execute Noah LSM simulations 
+at other sites for other initial times, study Secs 5 through 8.
+
+ (Reminder: See Sec 3 for a "Quick-Start" guide to executing the Noah LSM.)
+
+
+2.0 MODEL HERITAGE
+
+Beginning in 1990, and accelerating after 1993 under sponsorship from the 
+GEWEX/GCIP/GAPP then GEWEX/GAPP Program Office of NOAA/OGP via collaboration 
+with numerous GCIP/GAPP/GAPP Principal Investigators (PIs), the Environmental Modeling 
+Center  (EMC) of the National Centers for Environmental Prediction (NCEP) joined with the 
+NWS Office of Hydrology (OH) and the NESDIS Office of Research and Applications (ORA) to 
+pursue and refine a modern-era LSM suitable for use in NCEP operational weather and climate 
+prediction models.  Early in this effort, NCEP carried out an intercomparison of four LSMs, 
+including 1) a simple bucket model, 2) the OSU LSM  (known as the Coupled Atmospheric 
+boundary layer - Plant – Soil, CAPS, model land-surface scheme in some PILPS studies), 3) the 
+SSiB model, and 4) the Simple Water Balance model (SWB) of OH.  The results of this 
+intercomparison were reported in Chen et al. (1996, see references therein for the four cited 
+LSMs).  As a result of the good performance of the OSU LSM in this study and pre-existing 
+hands-on experience with this LSM by various EMC staff members, including Hua-Lu Pan and 
+Ken Mitchell, EMC chose the OSU LSM for further refinement and implementation in NCEP 
+regional and global coupled weather and climate models (and their companion data assimilation 
+systems). The results of the cited LSM intercomparison and the initial EMC refinements to the 
+OSU LSM were reported in Chen et al. (1996).
+
+At the beginning of the EMC LSM effort in 1990, the OSU LSM already had a 10-year history.  
+Its initial development was carried out by OSU in a series of three papers (Mahrt and Ek, 1984; 
+Mahrt and Pan, 1984; and Pan and Mahrt, 1987).  As the EMC LSM effort unfolded during the 
+1990's, a series of NCEP extensions to the OSU LSM were a) added by EMC and its 
+GCIP/GAPP and other collaborators and b) tested and validated in both uncoupled and coupled 
+studies (see review of these in Mitchell et al, 1999, 2000, and Ek et al. 2003).  At NCEP, the 
+LSM was first coupled to the operational NCEP mesoscale Eta model on 31 Jan 96, with 
+significant Eta LSM refinements subsequently implemented on 18 Feb 97, 09 Feb 98, 03 Jun 98, 
+24 Jul 01, 26 Feb 02 12 June 02.  In 1999, with a) the new addition and testing of frozen soil and 
+patchy snow cover physics in the uncoupled LSM used for the NCEP-OH submission to PILPS-
+2d (Valdai, Russia), and b) the growing number of external user requests for access to and use of 
+the NCEP LSM (e.g. GCIP/GAPP PIs), we decided the NCEP LSM had advanced to a stage 
+appropriate for formal public release (first in March 99).
+
+In 2000, given a) the advent of the "New Millenium", b) a strong desire by EMC to better 
+recognize its LSM collaborators, and c) a new NCEP goal to more strongly pursue and offer 
+"Community Models", EMC decided to coin the new name "NOAH" for the LSM that had 
+emerged at NCEP during the 1990s:
+N: 	National Centers for Environmental Prediction (NCEP)
+O: 	Oregon State University (Dept of Atmospheric Sciences)
+A: 	Air Force (both AFWA and AFRL - formerly AFGL, PL)
+H: 	Hydrologic Research Lab - NWS (now Office of Hydrologic Dev -- OHD)
+
+We in EMC strive to explicitly acknowledge both the multi-group heritage and informal 
+"community" useage of this LSM, going back to the early 1980's.   Since its beginning then at 
+Oregon State University, the evolution of the present Noah LSM herein has spanned significant 
+ongoing development efforts by the following groups: 
+
+NCEP/EMC:	NCEP Environmental Modeling Center (EMC) 
+                           (Mitchell, Ek, Lohmann, Grunmann, Lin, Marshall, Chen, Rogers, Manikin,
+                            Pan)
+OSU: 		Oregon State University 
+                           (Mahrt, Pan, Ek, Kim, Ruscher)
+HRL:                  NWS Hydrology Lab - formerly Office of Hydrology 
+                           (Schaake, Koren, Duan)
+AFWA: 	Air Force Weather Agency - formerly AFGWC
+                            (Gayno, Mitchell, Moore)  
+AFRL:            Air Force Research Lab - formerly AFGL and PL 
+                            (Mitchell, Chang, Hahn, Yang) 
+
+In addition to "in-house" Noah LSM development and validation by the above organizations, the 
+following external PIs (primarily GCIP/GAPP), have also performed valuable validations of the 
+Noah LSM and its immediate NCEP 1990's predecessors:
+
+E.H. Berbery and Rasmusson			U. Maryland  		(ARM/CART)
+C. Marshall, Basara, and Crawford		U. Oklahoma 		(OU Mesonet)
+Bastidas, Burke, Yucel, Shuttleworth,
+     Sooroshian					U. Arizona		(ARM/CART, AZNET)
+A. Robock and L. Luo				Rutgers U.		(OU Mesonet, ARM/CART)
+A.K. Betts		 			Atmospheric Res Inc  (ISLSCP/FIFE)
+C.D. Peters-Lidard, Wood			Princeton U.		(TOPLATS extensions)
+L. Hinkelman and Ackerman			Penn State U.		(ARM/CART)
+T.H. Chen, W. Qu, Henderson-Sellers, et al. 	RMIT			(PILPS-2a)
+E. Wood, Lettenmaier, Liang, Lohmann:	Princeton U.		(PILPS-2c)
+A. Schlosser, A.G. Slater, Robock, et al.      	U. Maryland		(PILPS-2d)
+R. Angevine					NOAA/AL		(Flatland Exp)
+L. Bowling and D. Lettenmaier		Univ. Washington	(PILPS-2e)
+A. Boone and J. Noilhan			Meteo-France		(Rhone/GLASS)
+K. Arsenault, B. Cosgrove, P. Houser	NASA-HSB		(LDAS)
+
+See Sec 10 for technical references on the above external validations.
+
+Lastly, 	one crucial collaborator deserves special mention, namely the NESDIS Office of 
+Research and Applications (Tarpley, Ramsay, Gutman, Kogan, Bailey), which has been the 
+source of critical global surface fields of a) vegetation greenness and its seasonality and b) 
+realtime snow cover, plus important GOES, satellite-based, hourly surface validation fields of c) 
+land surface skin temperature and  d) solar insolation, both on a 0.50-degree lat/lon CONUS grid.
+
+
+3.0	  DIRECTORY CONTENTS AND QUICK-START GUIDE TO EXECUTION
+
+3.1	Basic_with_validation
+
+The directory /mmb/gcp/ldas/noahlsm/ver_2.7.1/basic_with_validation on anonymous 
+server ftp.emc.ncep.noaa.gov contains sixteen files as follows:  1) this User's Guide (file 
+NOAH_LSM_USERGUIDE_2.7.1.doc), 2-3) the source code file split for the User's 
+convenience into two mutually exclusive files representing a) "driver" routines and b) 
+"physics" routines, 4) an input control file that defines model configuration and provides 
+initial conditions, 5) an input atmospheric forcing file, 6) a doc file describing the source 
+and valid period/location of this forcing file, 7-9) an input "namelist" file triad that allows 
+input of non-default physical parameters, 10-14)  five execution-time output files, 
+resulting from an entire one-year 1998 simulation valid near the Champaign, Illinois 
+surface-flux site of Tilden Meyers of NOAA/ARL.  This site is located at the lat/lon 
+coordinates of  (40.01 N, 88.37 W), 15) this user's guide in text format, 16) a tar file that 
+contains the aforementioned 15 files.  The16 filenames are listed below:
+
+		Filename				Contents
+1 --	NOAH_LSM_USERGUIDE_2.7.1.doc    This User's Guide
+2 -- 	DRIVER_WITH_VALIDATION.f	"DRIVER" family of routines of Noah_LSM 
+3 -- 	NOAH_LSM_SRC_2.7.1.f	 "PHYSICS" family of routines of Noah_LSM source code
+4 -- 	controlfile_ver_2.7.1			Input control file 
+5 -- 	forcing98_with_validation.dat            Input near-surface atmospheric forcing file
+6 --	CHAMP_IL.doc			Observing site description
+7 --	namelist_filename.txt			1-line 50-char name of namelist-read input file
+8 --	soil_veg_namelist_ver_2.7.1		namelist-read input file
+9-	doitall_2.7.1.sh                                      Execute DRIVER and SRC
+10-	PRTSCREEN.TXT.Z			Execution "print * " screen output 
+11-	DAILY.TXT.Z			Execution Output File 1 
+12-	HYDRO.TXT.Z		  	Execution Output File 2
+13-	THERMO.TXT.Z		  	Execution Output File 3 
+14-	OBS_DATA.TXT.Z			Execution Output Data File 
+15-       README                                           This user's guide in text format
+16-       NOAH_LSM_2.7.1.tar                          tar file that contains the above 15 files
+
+All files are text files, except files NOAH_LSM_USERGUIDE_2.7.1.doc and CHAMP_IL.doc, 
+which are MS Word files.  Download the tar file basic_with_validation.tar that contains all 15 
+files to your workstation.  Use Unix command "tar –xvf basic_with_validation.tar"  to create a 
+Proceed with a Noah LSM execution test as described below.
+
+First uncompress the "*.Z" files with the Unix uncompress command.
+The uncompress yields five upper-case "*.TXT" files.  These TXT files are output files.  Move 
+these "TXT* files  to a separate sister directory for later comparison to the equivalent 
+output files from your own local execution.
+
+The four lower-case files given by filenames
+
+controlfile_ver_2.7.1
+forcing98_with_validation.dat
+namelist_filename.txt
+soil_veg_namelist_ver_2.7.1 
+
+are the four input files required during the execution of lsm.x.  The "controlfile" (see Sec 5) 
+contains model configuration variables such as number and thickness of soil layers, number and 
+length of time steps, initial date/time of the simulation, lat/lon location of the simulation site, 
+initial conditions for all state variables, and site-specific land classifications (integer indexes for 
+vegetation-type, soil-type, and surface-slope category).
+
+The file obs98.dat (see Sec 6) contains one year's worth (1998) of 30-min observed atmospheric 
+forcing data and independent observed verification data (e.g. surface energy fluxes and soil 
+temperature) valid at the Champaing, Illinois surface-flux site operated and maintained by Tilden 
+Meyers of NOAA/ARL.  The site is located at the lat/lon coordinates of  (40.01 N, 88.37 W).
+
+Now invoking
+ "doitall_2.7.1.sh"
+will launch and complete the 1998 one-year LSM simulation for the aforementioned Illinois site, 
+producing the same 5 "*.TXT" output files that you obtained originally from the NCEP server.   
+Normal termination of the execution is marked by the termination message "STOP: 0".  Since all 
+the "*.TXT" files are ascii files, one can and should confirm that the 5 output files from the local 
+simulation agree very closely with the originally downloaded output files from NCEP.
+
+The output file PRTSCREEN.TXT contains the output from "Print *" write statements in the 
+MAIN program.  In this Version 2.7.1, these are the block of three "Print *" statements located  
+within the time-step loop in the  PROGRAM  MAIN source shortly after the return from CALL 
+SFLX .  These three Print * statements output the time step counter and the small surface energy 
+balance residual during each of the first 50 time steps and then every 50 time steps thereafter.
+The other four output files are the execution output data files of greater interest and their contents 
+are described in Sec 9.  
+
+One important degree of freedom regarding these remaining four output files must be cited here.  
+The unit numbers for these output files are 43, 45, 47, and 49, which are explicitly assigned in 
+PROGRAM MAIN (via variable names NOUT1, NOUT3, NOUT5, and NDAILY).  The sign of 
+these assigned unit numbers controls whether the output is ascii or binary.  The sign of all four 
+unit numbers is determined by a signed parameter (IBINOUT) read-in from the control file (see 
+Sec 5).  When the sign of IBINOUT is positive (negative), the format of these four output files is 
+binary (ascii).  When the output format is ascii (binary) then the extension *.TXT (*.GRS, 
+meaning GrADS-readable) appears on the generated filename.  The ascii choice (negative unit 
+number sign) was invoked in the default control run you obtain from the server.
+
+
+3.2	Basic
+
+The directory /mmb/gcp/ldas/noahlsm/ver_2.7.1/basic on anonymous server 
+ftp.emc.ncep.noaa.gov contains the same files as in the directory basic_with_validation except 
+for 2 different files DRIVER_BASIC.f and forcing_basic98.dat.  The file CHAMP_IL.doc is 
+missing as it is irrelevant.  The basic driver DRIVER_BASIC.f reads the near-surface input file 
+forcing_basic98.dat that contains only the 7 observed variables required for constructing Noah 
+LSM forcing (cf. Sec. 6.2).  This basic driver is designed for reading data from regular surface 
+sites that do not measure surface fluxes or subsoil properties.
+
+
+4.0    SUBROUTINE SUMMARY AND CALLING TREE
+
+Below, we describe PROGRAM MAIN in the "Driver family" of subroutines (file 
+DRIVER_WITH_VALIDATION.f or DRIVER_BASIC.f  as described in Sec. 3.2) and the 
+"Physics family" of subroutines (file NOAH_LSM_2.7.1.f ), comprised of physics "sub-driver" 
+routine SFLX and all subordinate subroutines.
+
+4.1   The Driver Routines
+
+Briefly the ten main steps of the MAIN program are:
+
+1)	read in control file ( model configuration, site characteristics,  and initial conditions)
+2)	open output file unit numbers
+3)	invoke time-step loop (including optional spin-up loop if indicated by control file)
+4)	read atmospheric forcing data and change its sign and units as expected by SFLX
+5)	interpolate monthly-mean surface greenness and albedo to julian day of time step 
+6)	assign downward solar and longwave radiation from input forcing
+7)	calculate actual and saturated specific humidity from input atmospheric forcing
+8)	assign wind speed from input forcing
+9)	invoke LSM physics (CALL SFLX) to update state variables / sfc fluxes over one time step
+10) write simulation output data each time step to four output files
+
+The section in driver PROGRAM MAIN associated with each of the above ten steps is clearly 
+delineated with comment line "DRIVER STEP n".  
+
+NOTE: The section of PROGRAM MAIN for Step 6 includes optional code (presently 
+commented out) for calculating the downward radiation from the input air temperature and 
+humidity if the input forcing file does not provide it.
+
+NOTE:  The section of PROGRAM MAIN for Step 8 includes optional code (presently 
+commented out) for invoking a User-provided routine to calculate the surface exchange 
+coefficient for heat (Ch) in place of  the default scheme.
+
+PROGRAM MAIN Calling Tree
+
+-	READCNTL: read control file (including LSM initial conditions and site characteristics)
+-	----------- Begin optional Multi-year Spin-Up Loop: if invoked by control file -------------
+-	--------------------------------------- Begin: Time Step Loop -------------------------------------
+-	READBND :          read atmospheric forcing data (and observed validation variables)
+-	MONTH-D:            interpolate monthly albedo and veg greenness to current julian day
+-- JULDATE:          determine julian day for current time
+-	QDATAP:               calculate actual and saturated specific humidity
+-- E (function)          calculate vapor pressure
+-	DQSDT (function): slope of sat specific humidity wrt air temp (needed in PENMAN)
+-- DQS (function)    intermediate value for routine dqsdt
+-	SFLX:                      call to family of physics routines (see Sec 4.2) **** key call ****
+-	PRTDAILY:            write daily total values to                      output file 1 (once a day only)
+-	PRTHYDF:              write LSM water related variables to    output file 2 (every time step)
+-	PRTHMF:                write LSM energy related variables to	output file 3 (every time step)
+-	PRTBND:                 write out input atmospheric forcing to 	output file 4 (every time step)
+-	------------------------------- End:    Time Step Loop ----------------------------------------------
+-	------------------------End: Optional Multi-year Spin-Up Loop---------------------------------
+-	STOP 0
+
+
+4.2    The SFLX Family of Subroutines
+
+The SFLX family of subroutines contain the physics of the LSM and is rather self-contained.  
+Each user should become familiar with the argument list of SFLX.  This argument list is 
+thoroughly documented at the top of subroutine SFLX.  Once becoming familiar with the 
+argument list, users could if they so choose create their own MAIN driver program with 
+reasonably little effort.  Calling SFLX each time step updates and returns all the LSM state 
+variables and all the surface energy balance and surface water balance terms.  In using SFLX in a 
+coupled atmospheric model, the output arguments needed from SFLX are:
+      ETA 		-  latent heat flux
+      H	            	-  sensible heat flux
+      T1		            - skin temperature (from which to calculate upward longwave radiation)
+      ALBEDO 	           - (including snowpack effects) for calculating upward solar radiation
+
+SUBROUTINE SFLX Calling Tree
+
+REDPRM --  set land-surface parameters
+-- set soil-type dependent parameters
+-- set veg-type dependent parameters
+	-- set other land-surface parameters
+SNO_NEW – update snow depth and snow density to account for new snowfall
+SNFRAC – determine snow cover fraction
+ALCALC – determine surface albedo (including snow cover fraction)
+TDFCND – compute soil thermal diffusivity
+SNOWZ0 – compute snow roughness length (currently a null/no effect process)
+SFCDIF --  calculate surface exchange coefficient for heat/moisture
+PENMAN – compute potential evaporation
+CANRES – compute canopy resistance
+
+NOPAC – this path invoked if ZERO snowpack on ground and zero snowfall (frozen precip)
+                     -- surface skin temperature updated via surface energy balance 
+SMFLX – compute a) surface water fluxes and b) layer soil moisture update 
+		DEVAP- compute direct evaporation from top soil layer
+		TRANSP – compute transpiration from vegetation canopy
+		SRT – compute time-rate-of-change of soil moisture
+			WDFCND – compute hydraulic conductivity and diffusivity 
+		SSTEP – forward time-step integration of soil moisture rate-of-change
+			ROSR12 – tri-diagonal matrix solver
+	TDFCND – compute soil thermal diffusivity
+	SHFLX – compute a) ground heat flux and b) layer soil temperature update
+		HRT – compute time-rate-of-change of soil temperature
+			TDFCND – compute soil thermal diffusivity (dependent on soil moist.)
+			TBND –  determine soil layer interface temperature
+			SNKSRC –(function) compute heat sink/source from soil ice phase change
+				TDFCND – compute soil thermal diffusivity
+				FRH2O – (function) calculate subzero unfrozen soil water
+		(or HRTICE – as in HRT, but for sea-ice pack)
+		HSTEP – forward time step integration of soil temperature rate-of-change
+			ROSR12 – tri-diagonal matrix solver
+SNOPAC –  this path invoked if NONZERO snowpack on ground and/or NONZERO snowfall
+-	surface skin temperature updated via surface energy balance
+-	new patchy snow cover treatment in above
+-	snowmelt computed if thermal and available energy conditions warrant
+
+	SMFLX – see above
+		DEVAP – see above
+		TRANSP – see above
+		SRT – see above
+			WDFCND – see above
+		SSTEP – see above
+			ROSR12 – see above
+	SHFLX – see above
+		HRT – see above
+			TDFCND – see above
+			TBND – see above
+			SNKSRC – see above
+				TDFCND – see above
+				FRH2O – see above
+		HSTEP – see above
+			ROSR12 – see above
+	SNOWPACK – update snow depth and snow density owing to snow compaction
+
+NOTES on SFLX Calling Tree:
+
+1 – Both the NOPAC and SNOPAC branches treat freezing processes within soil
+2 – Calling sequences under NOPAC and SNOPAC via SMFLX and SHFLX are very similar
+3 – Snowpack physics in SNOPAC are treated mainly "in-line", before calls to SMFLX/SHFLX
+4 – SHFLX and subordinates do heat fluxes and soil temperature update
+5 – SMFLX and subordinates do water fluxes and soil moisture update
+-- SMFLX operates independently of the soil thermodynamics (SHFLX) and can stand
+    alone, requiring only inputs of precipitation and potential evaporation
+-- SHFLX cannot operate independently of soil hydraulics, unless thermal conductivity
+    dependence on soil moisture dependence is removed (in routine TDFCND)
+
+
+5.0  CONTROL FILE CONTENTS AND FUNCTION
+
+The filename of the control file is "controlfile_ver_2.7.1".  The user may want to have a printout 
+of the control file handy (about one page) when reviewing the comments below.
+
+The control file is read-in early in the MAIN program and provides inputs of the following types 
+of information:  a) valid location and start date/time of simulation, b) model configuration, 
+c) name of input forcing file, d) integer indexes for land-sfc classes for the site, e ) initial values 
+of all the model state variables.
+
+NOTE:  The control file does not provide model physical parameters, except for the lower 
+boundary condition on the soil temperature (which should be assigned the value of the annual 
+mean sfc air temperature for the simulation location).  Physical parameters are set in subroutine 
+REDPRM and many of these parameters are dependent in REDPRM on the veg-type index and 
+soil-type index read from the control file.  
+
+The control file consists of 30 data lines that contain the following:
+
+Line 01: LAT - simulation site latitude (positive N from equator, hundredths of a degree)
+Line 02: LON - simulation site longitude (positive W from Greenwich, hundredths of a degree)
+
+Note:  The above serve only to document the valid site of the input forcing data.
+           The physics do not use the above, since forcing data provides downward solar radiation.
+            Above would be needed by a MAIN driver that had to calculate downward solar radiation
+
+Line 03: IBINOUT - either positive interge "1", or negative integer "-1".
+	Negative sign invokes ascii text output files with extension *.TXT
+Postive	 sign invokes binary output files with extension *.GRS -denoting GrADS readable
+
+Line 04: JDAY - Integer Julian Day (1-366) of start of forcing data (start of simulation)
+Line 05: TIME - 4-digit "hhmm" integer time of day (local) at start of forcing data,
+hh is 2-digit hour (0-23) and mm is 2-digit minute (0-59).  
+
+Note:  Except for use of JDAY to to temporal interpolation of monthly greenness and albedo 
+read-in later below, the above JDAY and TIME serve only to document the valid start date/time 
+of  the input forcing data.  The physics do not use the above, since forcing data provides 
+downward solar radiation.  Above would be needed by a MAIN driver that had to calculate 
+downward solar radiation
+
+Line 06: NCYCLES – number of times the integration will cycle through the input forcing data
+	(useful for multi-year spin-up runs, wherein input forcing file spans one complete year) 
+Line 07: SYDAYS - number of days in spin-up year (either 365 or 366)
+	(relevant only if NCYCLE is 2 or greater)
+Line 08: L2nd_data: logical variable: value of .true. or .false.
+	if TRUE: then NCYCLES must be set to 2 or greater, and thus invokes spin-up runs of
+	NCYCLE-1 spin-up years with first forcing file given below, followed by 1 final cycle
+	(not necessarily full year)executed from second forcing file below and representing the
+ final production run period.  Will write output only during final cycle, unless two forcing
+ files have the same name, then will write output from each cycle
+	if FALSE: then only first named forcing file is used, still for the number of cycles given 
+	by NCYCLE, and will write output from every cycle
+Note: The true option for L2nd_data is useful for multi-year "PILPS-type" spin-up runs
+ 	For forcing files spanning only a partial year, L2nd_data should be false and NCYCLE=1
+Line 09: NRUN is the total number of simulation time steps per cycle.
+Line 10: DT – floating point length of time step (secs) used in physical integration
+
+Note:  DT should NOT be larger than one hour (3600 secs)
+Note:  There must be one forcing data record in forcing file for each time step
+
+Line 11: NSOIL - integer number of soil layers 
+
+Note: NSOIL must be 2 or greater, NOT to exceed 20, strongly recommend at least 4
+
+Line 12: Z – height in meters above ground of atmospheric forcing data
+
+Note:  In observed forcing data, the height of the temperature/humidity observation (e.g. 2 m) is 
+often different from the height of the wind observation (e.g. 10 m ).  When that is the case, we 
+recommend using the height of the wind observation for Z. 
+
+Line 13: SLDPTH - thickness values for the NSOIL soil layers in meters  (chosen by user), 
+starting with the uppermost layer and proceeding downward
+
+Note:  We recommend that each succeeding soil layer downward not exceed 3 times the 
+thickness of the soil layer above it.  For the common 4-layer configuration, we recommend 
+
+Layer 1: 10 cm (.10 m) 
+Layer 2: 30 cm (.30 m)
+Layer 3: 60 cm (.60 m)
+Layer 4:100 cm (1.0 m)
+Note:  The physical equations in the LSM predict the soil moisture/temperature state variables at 
+the midpoint of each model soil layer.
+
+NOTE:!!  Sum total of all soil layer thicknesses should not exceed about 2/3 of depth 
+parameter ZBOT.  The lower boundary condition TBOT of soil temperature is applied at the 
+depth specified by parameter ZBOT, whose current default value of -8.0 meters is set in routine 
+REDPRM (ZBOT follows negative sign convention for soil depth), but this default can be 
+changed via the optional NAMELIST I/O in REDPRM.
+
+Line 14:  - filename of the first input forcing file (up to 72 characters)
+Line 15:  - filename of the second input forcing file (up to 72 characters)
+
+Note: see above discussion of logical variable "L2nd_data
+Note: the two forcing files may be the same name (used for both spin-up and production years)
+
+NOTE !! : User should contact NCEP Point of Contact given at top of Page 1 for 
+recommended values for Lines 12-18
+
+Line 16: SOILTP - soil type integer index (range 1-9), see definitions in routine REDPRM
+Line 17: VEGTYP veg type integer index (range 1-13), see definitions in routine REDPRM 
+Line 18: SLOPTYP sfc slope integer index (range 1-9), see definitions in routine REDPRM
+
+Note: SLOPTYP is a sfc slope category (flat, steep, mixed, etc) used in the bottom drainage
+
+Line 19: ALBEDO – 12 monthly values of surface albedo fraction (snow-free) for simulation site
+
+Note: LSM physics will internally add snow cover effects to ALBEDO
+
+Line 20: SHDFAC  - 12 monthly values of green vegetation fraction for simulation site
+
+NOTE !!  See contact point at top of this User's Guide to get monthly vegetation greenness 
+values for your simulation site of interest.
+
+NCEP now sets monthly SHDFAC using the global database and publication of 
+
+          Gutman, G. and A. Ignatov, 1998: The derivation of the green vegetation fraction from
+                NOAA/AVHRR for use in numerical weather prediction models.  International Journal
+                of Remote Sensing, 19, 1533-1543.
+
+This latter work provides a 5-year, monthly mean, global database of green vegetation fraction at 
+0.144 degree resolution, obtained from NDVI.  The authors forcefully argue that the two 
+AVHRR channels that are used to derive NDVI do NOT provide sufficient degrees of freedom to 
+derive BOTH vegetation greenness and LAI independently.  They instead argue for embracing 
+all the seasonality of vegetation in the greenness fraction and holding the LAI at a fixed constant 
+annual value in the range of 1-5 (thus LAI becomes a tuning parameter).  NCEP has obtained 
+reasonable behavior with LAI=4.
+
+Line 21: SNOALB – maximum albedo expected over deep snow
+
+Note:  NCEP takes the above from the 1-degree, N. Hemisphere, digital database of 
+       	Robinson, D.A., and G. Kukla, 1985: Maximum surface albedo of seasonally snow-
+Covered Lands in the Northern Hemisphere. J. Climate Appl. Meteor., 23, 1626-1634
+(See Fig. 4 therein for depiction from digital database).
+
+Line 22:  ICE – Flag to invoke sea-ice physics  (always set to 0 for land-mass simulations)
+
+Note:  The integer flag  "ICE" forces branch to sea-ice physics in LSM.
+               Be aware that this ICE flag has no bearing on soil ice physics in NCEP LSM.
+
+Line 23:  TBOT – set to the climo annual mean sfc air temperature (K) for the modeled site
+.  
+Note:  TBOT serves as the annually fixed, soil-temperature bottom-boundary condition at a soil 
+depth of ZBOT.  ZBOT is currently set at a default 8-meter depth (-8.0) in routine REDPRM.  
+ZBOT is the assumed nominal soil depth where the amplitude of the soil-temperature annual 
+cycle is near zero (e.g. about double the e-folding depth in the soil of the annual cycle of surface 
+air temperature).
+
+Initial conditions for all state variables follows:
+
+Line 24: T1 – initial skin temperature (K).  Can be set to initial air temperature.  Model physics 
+                        rapidly spins this up in first few 2-3 time steps.
+
+Line 25:  STC (1-NSOIL): initial soil temperature (K), in each soil layer
+
+Line 26:  SMC (1-NSOIL):  initial volumetric total soil moisture (liquid and frozen) in each layer
+	(usually in the range .1-.43)
+
+Note:  Initial SMC should not exceed soil saturation (porosity), as set in routine REDPRM for 
+given soil class.  
+
+Line 27:  SH2O (1-NSOIL): initial volumetric liquid soil moisture (unfrozen) in each layer
+
+Note: initial SH2O must not exceed porosity, nor exceed initial SMC
+
+NOTE:  During conditions of no soil freezing, SH2O=SMC in each layer.
+
+NOTE:  Initializing soil ice (case of SH2O less than SMC) is very difficult.  Recommend starting 
+the model run in the warm season and letting the physics spin-up soil ice, or running multi-year 
+spin-up cycles.
+
+Line 28:  CMC – initial canopy water content (m).  Set to zero as physics rapidly spins this up.
+
+Line 29: SNOWH – initial snow depth (m)
+
+Line 30: SNEQV – initial water equivalent (m) of above snowdepth.  If not observed, dividing
+                                SNOWH by 5 gives a nominal initial value.
+
+6.0	ATMOSPHERIC FORCING FILE
+
+6.1     Forcing with Validation
+
+As is typical with many off-line, uncoupled LSMs, the NCEP LSM  requires the following near-
+surface atmospheric forcing data, preferably at 30-minute time intervals (or interpolated to 
+30-minute time intervals or smaller from say 1-6 hour interval observations  -- Aside note: for 
+observation intervals longer than 1-hour, the incoming surface solar insolation needs to be 
+interpolated with a solar zenith angle weighting, in order to capture the full amplitude of the 
+diurnal solar insolation).
+
+Air temperature    at height Z above ground
+Air humidity        at height Z above ground 
+Surface pressure   at height Z above ground
+Wind speed           at height Z above ground
+Surface downward longwave radiation
+Surface downward solar radiation
+Precipitation
+
+For the example one-year LSM simulation provided with this User's Guide, we were extremely 
+fortunate to benefit from the collaboration of GCIP/GAPP-sponsored PI Tilden Meyers of 
+NOAA/ARL, who operates a flux site located just south of Champaign, IL (40.01 N lat, 88.37 W 
+lon).
+The site characteristics and observing instrumentation are described in the MS Word document
+CHAMP_IL, provided by courtesy of Tilden Meyers, and available in same directory as this 
+User's Guide.
+
+The 1998 forcing file from the above flux site is available as filename 
+"forcing98_with_validation.dat" in the same directory as this User's Guide.  This file contains 
+one record for each 30-minute observation time and the file spans the entire calendar year of 
+1998 (hence 2 X 24 X 365 = 17520 records).  Each 30-min record provides the following 33 
+observed variables (including the 7 required LSM forcing variables, marked by "**"), listed in 
+the order they appear in each record of the file:
+
+jday	Julian Day
+time	LST, half hour ending 
+w_speed	propeller anemometer (10 meters, Bondville ISIS)
+w_dir	wind direction (10 meters, Bondville ISIS) 
+**     Ta	                  air temperature (C), at 3 m
+**     RH		      relative humidity at 3 m                                   (list  continued)
+**     Pres		      surface pressure in mb
+**     Rg		      incoming solar radiation (W/m2)
+Par_in 	incoming visible radiation (0.4-0.7 um) in uE/m2/s
+Par_out 	outgoing or reflected visible light
+Rnet	net radiation (W/m2)
+GHF 	soil or ground heat flux (W/m2)
+**     rain		      total rain for half hour (inches)
+wet 	wetness sensor (in voltage with higher values indicating wetness)
+IRT 	surface or skin temp (C)
+2_cm	soil temp at 2 cm (C)
+4_cm	soil temp at 4 cm
+8_cm	soil temp at 8 cm
+16_cm 	soil temp at 16 cm
+32_cm 	soil temp at 32 cm
+64_cm 	soil temp at 64 cm
+**     u_bar 		      average wind vector speed at 6-meters (m/s)
+u'w'	kinematic shear stress (m2/s2)
+u'2 	streamwise velocity variance (m2/s2)
+v'2 	crosswind velocity variance (m2/s2)
+w'2 	vertical velocity variance(m2/s2)
+H 	sensible heat flux (W/m2)
+LE	latent energy flux (W/m2)
+CO2	CO2 flux (mg CO2/m2/s)
+**     LW_in		     downwelling longwave from sky (W/m2)
+sm_5	soil volumetric water content at 5 cm zone (after November 19 1997)
+sm_20 	soil volumetric water content at 20 cm zone (after November 19 1997)
+sm_60 	soil volumetric water content at 60 cm zone (after November 19 1997)
+
+
+In the LSM, program MAIN reads in all 33 of the above variables at each time step via the call to 
+subroutine READBND, which also fills in occasional missing observations.  Missing obs are 
+very sparse and virtually always involve missing values of the wind speed (u_bar at 6 m), for 
+which the READBND software substitutes (w_speed at 10 m with a reduction factor).  Finally, 
+the last section of routine READBND performs unit conversions on "rain", "Ta", and "Pres" to 
+convert them to the units expected in the call to SFLX .
+
+In addition to the LSM-required atmospheric forcing variables in the above list, the other 
+variables in the list represent either a) independent validation data or b) useful initial conditions 
+for the LSM state variables.   LSM initial conditions are discussed in the next section.  
+At each time step in the MAIN program, after the return from the physics update in CALL 
+SFLX, useful LSM validation data from the above observation file is written out to validation 
+output file OBS_DATA.TXT via call to routine PRTBND (e.g. LE, H, GHF, RNET, IRT, and 
+the layer by layer soil moisture and temperature).
+
+6.2	Basic Forcing
+
+The basic input near-surface atmospheric forcing file forcing98_basic.dat is a subset of the input 
+file forcing98_with_validation.dat described in Section 6.1. This basic input forcing file is 
+located at: ftp://ftp.emc.ncep.noaa.gov/mmb/gcp/ldas/noahlsm/ver_2.7.1/basic    
+This file contains one record for each 30-minute observation time and the file spans the entire 
+calendar year of 1998 (hence 2 X 24 X 365 = 17520 records).  Each 30-min record provides the 
+following 9 observed variables (including the 7 required LSM forcing variables, marked by 
+"**"), listed in the order they appear in each record of the file:
+
+jday	Julian Day
+time	LST, half hour ending 
+**     Ta	                  air temperature (C), at 3 m
+**     RH		      relative humidity at 3 m                                 
+**     Pres		      surface pressure in mb
+**     Rg		      incoming solar radiation (W/m2)
+**     rain		      total rain for half hour (inches)
+**     u_bar 		      average wind vector speed at 6-meters (m/s)
+**     LW_in		     downwelling longwave from sky (W/m2)
+
+        
+
+7.0     LSM INITIAL CONDITIONS
+
+The LSM requires input values (read-in from control file in routine READCNTL, see Sec 5 for 
+details on units) of the following state variable initial conditions :
+
+1 – SMC:  	total volumetric soil moisture (liquid and frozen) in each soil layer
+2 – SH2O: 	liquid volumetric soil moisture in each soil layer 
+3 – STC:    	temperature in each soil layer
+4 – T1:       	skin temperature
+5 – CMC:       	canopy water content
+6– SNOWH: 	snow depth
+7 - SNEQV: 	water-equivalent snow depth
+
+Typically, a number of these state variables are not observed at a given validating observation 
+site.  The following initial variables were not available in the site observation file (obs98.dat):
+
+SNEQV, SNOWH, CMC, nor SMC (and SH2O) below 60 cm
+
+Since January 1998 was mild (El'Nino) at the given site, we assumed a) zero snow cover 
+(SNOWH=0.0, SNEQV=0.0) and b) zero soil ice (SMC=SH2O), plus we set CMC=0.
+
+While we in general found the physical behavior of the observed data in file obs98.dat to be very 
+good, inspection of the observed soil moisture at the 20 and 60 cm levels showed them to be 
+virtually time invariant over the entire year, despite substantial wetting and drying periods.  
+Hence their accuracy is very suspect. 
+ 
+It is typical for LSM simulations at a particular observation site to be hampered by non-observed
+(e.g. snowdepth, frozen soil moisture, deep soil moisture ) or ill-observed  initial state variables 
+(.e.g. soil moisture).   Facing this dilemma, the Project for Intercomparison of Land-Surface 
+Process Schemes (PILPS) has come to urge modelers to use a one-year spin-up protocol, 
+whereby the simulation for a desired period (1998 here)  is preceded by a spin-up year (say 1997 
+in this case) where the spin-up year forcing is repeated several years to allow the LSM to 
+essentially achieve equilibrium.   
+
+Tilden Meyers provided us with the 1997 forcing data for his site, and we proceeded to execute 
+the PILPS-recommended spin-up protocol to provide all initial soil states for the one-year 1998 
+production run provided in this directory.
+
+Specifically, in a prior run using the same model configuration as in the control file given here 
+and using L2nd_data = .false., NCYCLES= 10, and the aforementioned 1997 forcing file we call 
+"obs97.dat", we executed a 10-year spin-up run over the 1997 annual cycle in order to derive 
+initial conditions of soil state and snow state (turned out zero snowpack, because of warm fall 
+and early winter in 1997) for the 1998 production run provided here in the directory with this 
+User's Guide.  In practice, a full 10-years of spin-up is not needed.  We generally recommend 3-5 
+years of spin-up.
+
+
+8.0     SPECIFYING MODEL PARAMETERS
+
+The vast majority of the Noah LSM land-surface parameters are set in subroutine REDPRM.  
+However, the assignment of some land-surface parameters have not yet been "collected" into the 
+REDPRM setting and remain buried deep in the LSM code.  We feel these exceptions are 
+primarily parameters of secondary or tertiary importance.   A few exceptions may be some 
+parameters used in the snowpack physics, such as the parameter that controls the amount of 
+supercooled water allowed in the soil over a range of sub-freezing temperatures.  We are 
+working to identify such parameters and bring them into the REDPRM setting in a future release.
+
+In a broader sense, one should also consider the number (NSOIL) and thickness (SLDPTH) of 
+the soil layers (especially thickness of top soil layer) specified in the control file to be adjustable 
+parameters.  
+
+Before proceeding further in this section, the reader should have on hand a copy of the 
+subroutine REDPRM.  
+
+In REDPRM, we define the NAMELIST named "/SOIL_VEG/", which includes ALL the 
+parameters defined in REDPRM, including parameter arrays whose elements depend on soil 
+type, vegetation type, or slope type.  Moreover, this namelist includes three variables that 
+respectively define the number of classes (up to a maximum of 30) that we carry for soil type, 
+vegetation type, and slope type.  With the powerful and robust flexibility of the namelist 
+construct, we can even make wholesale changes to the soil and vegetation classification scheme 
+used and the soil and vegetation parameters associated with the change in classification.  Thus 
+via the namelist read, we can change as little as one single universal parameter, or multiple- 
+element parameter arrays associated with a classification, or the number of classification 
+categories themselves, or a combination of these, all without any recompiling of source code.
+
+One exercises the above flexibility through the input filename called "namelist_filename.txt", 
+which is read-in by routine REDPRM.  This 1-line 50-char text file provides the name of the 
+namelist file, which the routine REDPRM then reads in as well.  By this mechanism, one can 
+carry multiple namelist files (providing different parameter sets) in the same execution directory.  
+The contents of the 1-line file "namelist_filename.txt" thus acts as a pointer to the namelist file 
+you wish to read-in during a given execution.
+
+Every namelist file so pointed to must begin with the following syntax:
+
+$SOIL_VEG LPARAM = .FALSE.$  
+or
+$SOIL_VEG LPARAM = .TRUE.$
+with the latter followed by at least one or more defined parameter values.
+
+We recall that the beginning of Sec 3 listed all the filenames in the directory /ver_2.7.1 with this 
+User's Guide (Noah_LSM_USERGUIDE_2.7.1.doc).  Inspecting the contents of filename 
+"namelist_filename.txt" therein, we find that this file points to the filename 
+""soil_veg_namelist_ver_2.7.1".  On inspection we find the contents of this file to be
+
+$SOIL_VEG LPARAM = .FALSE.$  ,
+
+hence ALL the default values of the parameters defined in REDPRM will be retained unchanged.
+
+If the contents of "namelist_filename.txt" instead pointed to filename "namelist_chg_example", 
+then we find on inspection that the contents of the latter file are
+
+$SOIL_VEG LPARAM = .TRUE.$
+$SOIL_VEG NROOT_DATA = 
+3,3,3,3,3,3,2,2,2,2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 $
+$SOIL_VEG Z0_DATA(7) = 0.15 $
+ $SOIL_VEG REFKDT_DATA = 1.0 $
+
+In the above example, our execution will utilize 1) new values for all the elements of array 
+NROOT, 2) a new value for the 7-th element of the array of roughness lengths (this element 
+corresponding to veg class #7, or perennial grassland), and 3) a new value for the scalar surface 
+runoff parameter REFKDT.
+
+Below, we will review ALL the parameters defined in REDPRM.  All these parameters are 
+included in the NAMELIST /SOIL_VEG/, which is specified in routine REDPRM as
+
+NAMELIST /SOIL_VEG/ SLOPE_DATA, RSMTBL, RGLTBL, HSTBL, SNUPX,
+     &     BB, DRYSMC, F11, MAXSMC, REFSMC, SATPSI, SATDK, SATDW,
+     &     WLTSMC, QTZ, LPARAM, ZBOT_DATA, SALP_DATA, CFACTR_DATA,
+     &     CMCMAX_DATA, SBETA_DATA, RSMAX_DATA, TOPT_DATA,
+     &     REFDK_DATA, FRZK_DATA, BARE, DEFINED_VEG, DEFINED_SOIL,
+     &     DEFINED_SLOPE, FXEXP_DATA, NROOT_DATA, REFKDT_DATA, Z0_DATA,
+     &     CZIL_DATA, LAI_DATA, CSOIL_DATA, SMLOW_DATA, SMHIGH_DATA
+
+In the above list, there are five kinds of land-surface parameters, reviewed in order below. 
+
+a)	single universal values
+b)	values dependent on the soil class index (default categories are 1-  9)
+c)   values dependent on the vegetation class index (default categories are 1-13)
+d)   values dependent on the surface slope index (default categories are 1-7)
+e)   parameters specifying the numbers of vegetation, soil, and slope classes
+
+A)	 Universal values (16) (current default value in this release listed)
+
+CZIL = 0.20:  Zilintikevich  parameter (range 0.0 - 1.0), recommended range 0.2 - 0.4
+
+Note:  CZIL is a tuneable parameter, which controls the ratio of the roughness length for heat to 
+the roughness length for momentum, and is known as the Zilintikevich coefficient. This 
+parameter effectively allows tuning of the aerodynamic resistance of the atmospheric surface 
+layer.   Increasing CZIL increases aerodynamic resistance.  For a full description and 
+example impacts of this primary parameter, see the article by 
+
+Chen, F, Z. Janjic, and K. Mitchell, 1997: Impact of the atmospheric surface-layer 
+      parameterizations in the new land-surface scheme of the NCEP mesoscale Eta model.
+      Boundary-Layer Meteor., 85, 391-421
+
+REFDK= 2.0E-6:  a parameter used with REFKDT below to compute sfc runoff parameter KDT
+REFKDT = 3.0: surface runoff parameter (nominal range of 0.5 – 5.0)
+
+NOTE: REFKDT is a tuneable parameter that significantly impacts surface infiltration and hence 
+the partitioning of total runoff into surface and subsurface runoff.  Increasing REFKDT 
+decreases surface runoff.  See next publication:
+
+Schaake, J., V. Koren, Q.-Y. Duan, K. Mitchell, and F. Chen, 1996:  Simple water 
+     balance model for estimating runoff at different spatial and temporal scales. 
+     J. Geophysical Res., 101, No. D3.
+
+NOTE: REFDK corresponds to the saturation hydraulic conductivity Ksat for silty clay loam.  If 
+the latter parameter value is changed, then REFDK must be equated to that new value.
+
+ZBOT = -8.0 m: nominal depth of TBOT:  lower boundary condition on soil temp (range 3-20m)
+(see discussion of ZBOT in discussion of TBOT in notes below Lines 13 and 23 of Control File 
+in Section 5.0)
+SMLOW = 0.5: 'spread' factor for SMCWLT
+SMHIGH = 3.0: 'spread' factor for SMCREF
+FXEXP = 2.0: bare soil evaporation exponent (=1 yields linear reduction of  bare soil 
+evaporation with decreased soil moisture between SMCMAX and SMCDRY, >1 yields greater-
+than-linear reduction)
+SBETA= -2.0:used to compute veg canopy effect on ground heat flux as a function of  greenness
+CSOIL = 2.00E+6: soil heat capacity (J/m**3/K)
+SALP = 2.7.1:shape parameter used in function to infer percent area snow cover from snow 
+depth
+CFACTOR = 0.5:  exponent used in function for canopy water evaporation
+CMCMAX =0.0005 (m):  maximum canopy water capacity used in canopy water evaporation
+FRZK=0.15 a base reference value (for light clay soil type) of parameter for the frozen-soil 
+freeze factor representing the ice content threshold above which frozen soil is impermeable
+RSMAX=5000 (s/m) maximum stomatal resistance used in canopy resistance routine CANRES
+TOPT= 298(K) optimum air temperature for transpiration in canopy resistance routine CANRES
+RTDIS: array specifying vertical root distribution, i.e. the fraction of total root mass  present 
+                in each soil layer
+
+Note:  RSMAX and TOPT are not yet functions of vegetation class.
+
+Note:  Presently, RTDIS is set universally (not dependent on vegetation class) and assumes a
+ uniform root distribution throughout the specified number of root layers for the given 
+vegetation class.
+
+B)   Soil-class dependent parameter arrays (10) 
+
+Routine REDPRM applies 9 soil texture classes.  These classes are defined near the top of 
+routine REDPRM.   The parameters dependent on soil class are:
+
+SMCMAX:  maximum volumetric soil moisture (porosity)
+SMCREF:     soil moisture threshold for onset of some transpiration stress
+SMCWLT:    soil moisture wilting point at which transpiration ceases
+SMCDRY:   top layer soil moisture threshold at which direct evaporation from soil ceases
+DKSAT:       saturated soil hydraulic conductivity
+PSISAT:       saturated soil matric potential
+B:                  the "b" parameter in hydraulic functions
+DWSAT:      saturated soil water diffusivity
+QUARTZ:    quartz content, used to compute soil thermal diffusivity
+FRZFACT:  a parameter used with FRZK to compute the value of parameter FRZX
+
+
+Note: if soil parameters such as SMCMAX and SMCREF or soil classification scheme are
+ changed, then parameters FRZK and FRZFACT must be changed
+
+C)   Vegetation-class dependent parameters arrays (7)
+
+Routine PRMVEG applies the 13 "SiB" vegetation classes.  These classes are described in the 
+comment block at the top of routine PRMVEG.  The seven veg-class dependent parameters are:
+
+Z0: (m) roughness length
+RCMIN (s/m) :  minimal stomatal resistance used in canopy resistance of routine CANRES
+RGL:  radiation stress parameter used in F1 term in canopy resistance of  routine CANRES
+HS:  coefficient used in vapor pressure deficit term F2 in canopy resistance of routine CANRES
+LAI: presently set to universal value of 4.0 across all vegetation classes
+
+Note: seasonality of vegetation greenness carried by fraction of green vegetation (SHDFAC)
+
+NROOT: number of soil layers from top down reached by roots; note: NROOT ? NSOIL
+
+SNUP: the water-equivalent snowdepth upper threshold at which 
+1)	100 percent snow cover is achieved for given veg class
+ 2)   maximum snow albedo is achieved for given veg class
+
+D)   Surface-slope dependent parameter arrays (1)
+
+Routine REDPRM embodies 7 categories of surface slope.  These categories are described in a 
+comment block near the top of routine REDPRM.  The parameter dependent on slope class is:
+
+SLOPE – a coefficient between 0.1-1.0 that modifies the drainage out the bottom of the last
+                soil layer.  A larger surface slope implies larger drainage
+
+E)   Classification dimension parameters (3)
+
+Vegetation Types ("SiB-1") after Dorman and Sellers (1989; JAM)
+
+DEFINED_VEG = 13: the number of SiB-1vegetation class categories, assigned as follows:
+
+   1:   BROADLEAF-EVERGREEN TREES  (TROPICAL FOREST)
+   2:   BROADLEAF-DECIDUOUS TREES
+   3:   BROADLEAF AND NEEDLELEAF TREES (MIXED FOREST)
+   4:   NEEDLELEAF-EVERGREEN TREES
+   5:   NEEDLELEAF-DECIDUOUS TREES (LARCH)
+   6:   BROADLEAF TREES WITH GROUNDCOVER (SAVANNA)
+   7:   GROUNDCOVER ONLY (PERENNIAL)
+   8:   BROADLEAF SHRUBS WITH PERENNIAL GROUNDCOVER
+   9:   BROADLEAF SHRUBS WITH BARE SOIL
+  10:   DWARF TREES AND SHRUBS WITH GROUNDCOVER (TUNDRA)
+  11:   BARE SOIL
+  12:   CULTIVATIONS (THE SAME PARAMETERS AS FOR TYPE 7)
+  13:   GLACIAL (THE SAME PARAMETERS AS FOR TYPE 11)
+
+Soil Types after Zobler (1986), except for quartz after Cosby et al (1984)
+
+DEFINED_SOIL = 9: the number of Zobler soil class categories, assigned as follows:
+
+	TEXTURE			DESCRIPTION	QUARTZ CONTENT
+
+1        COARSE            		LOAMY SAND         		(0.82)
+2        MEDIUM            		SILTY CLAY LOAM   	(0.10)
+3        FINE              			LIGHT CLAY         		(0.25)
+4        COARSE-MEDIUM     	SANDY LOAM         		(0.60)
+5        COARSE-FINE       		SANDY CLAY        		(0.52)
+6        MEDIUM-FINE       		CLAY LOAM          		(0.35)
+7        COARSE-MED-FINE   	SANDY CLAY LOAM    	(0.60)
+8        ORGANIC           	   					(0.40)
+9        GLACIAL LAND ICE  	LOAMY SAND         		(0.82)
+
+Slope Types after Zobler (1986)
+
+DEFINED_SLOPE = 9: the number of Zobler defined slope categories, assigned as follows: 
+
+SLOPE CLASS      PERCENT SLOPE
+  		1                0-8
+  		2                8-30
+  		3                > 30
+  		4                0-30
+  		5                0-8 & > 30
+  		6                8-30 & > 30
+ 		7                0-8, 8-30, > 30
+  		8                GLACIAL ICE
+ 		9                OCEAN/SEA
+
+
+9.0    EXECUTION OUTPUT FILES
+
+There are five execution-time output files:
+
+PRTSCREEN.TXT:  holds results from "Print * " output via execution command line syntax of 
+"lsm.x  >PRTSCREEN.TXT"  (i.e. capture of "screen" print).  Presently file contains the surface 
+energy balance residual and time-step value for first 50 time steps, then every 50 steps thereafter.
+
+a)	DAILY.TXT:  contains daily-defined output values once-per-day, from routine PRTDAILY,
+                      such as daily total evaporation and precipitation.
+
+b)	HYDRO.TXT: contains water related outputs at every "time step", from routine  PRTHYDF, 
+                   such as actual and potential evaporation, soil moisture, snowdepth, snowmelt, runoff.
+
+c)	THERMO.TXT: contains energy related outputs at every "time step",from routine PRTHMF, 
+                     such as skin temperature, soil temperature, and all surface energy fluxes
+
+d)   OBS_DATA.TXT: output of observed input forcing/validation data, from routine PRTBND,
+      such as incoming radiation, skin temperature, soil temperature, precip, net radiation, latent,
+      sensible, and ground heat fluxes  (i.e. this file echoes the input observation file "obs98.dat",
+      but with some units conversion for compatibility with other model outputs)                                                                 
+
+
+10.0	    MODEL HISTORY
+
+Directory    Contents/Notes
+------------------------------------------------------------------------
+AFWA/        nearly equivalent to ver 2.2
+------------------------------------------------------------------------
+Eta_2.3/     ops version of Noah LSM ver 2.3
+------------------------------------------------------------------------
+Eta_2.3.1/   ops version of Noah LSM ver 2.3.1
+------------------------------------------------------------------------
+ver_2.3/     Noah LSM in operational mesoscale Eta model, nearly
+               identical physics to version 2.2 (July 2001)
+------------------------------------------------------------------------
+ver_2.3.1/   ver 2.3 +
+             modifications to soil heat flux for patchy snow cover
+------------------------------------------------------------------------
+ver_2.3.2/   ver 2.3.1 +
+             modification to soil moisture availability function in bare
+               soil evaporation calculation
+------------------------------------------------------------------------
+ver_2.4/     identical physics to ver 2.3, but with code
+               re-organization, more efficient code, comments, etc.
+------------------------------------------------------------------------
+ver_2.5/     bug fix to TDFCND
+             soil heat capacity = 2.0E+6 [J/m^3/K]
+             ZBOT = -8 (meters)
+------------------------------------------------------------------------
+ver_2.5.1/   ver 2.5 +
+             modifications to soil heat flux for patchy snow cover
+------------------------------------------------------------------------
+ver_2.5.2/   ver 2.5.1 +
+             modification to soil moisture availability function in bare
+               soil evaporation calculation
+------------------------------------------------------------------------
+ver_2.6/     ver 2.5.2 +
+             change parameter CZIL from 0.20 to 0.075
+             reduce the parameter SMCREF
+             reduce interval between SMCREF and Field Capacity by 1/2
+             remove vegetation greenness factor from snow-albedo functn
+             reduce value of parameter SNUP by 1/2
+             increase value of parameter SALP from 2.6 to 4.0
+------------------------------------------------------------------------
+ver_PILPS-2e/  nearly identical to ver 2.5 model physics, but with
+                 driver program specific to PILPS-2e
+------------------------------------------------------------------------
+ver_2.7.1
+
+FROZEN PRECIP TYPE - add so-called 'Lackmann' change to the
+determination of frozen precip type in the Noah LSM, i.e. in the coupled
+mode pass Eta-microphysics determined precip type (i.e. frozen or not)
+to the Noah LSM, vs poor-man use of Tair (1st model level above the
+surface), with snow for T<0C, rain otherwise. In the offline mode this
+change may be null since the same precip-type determination procedure
+may be (is?) employed, use of the 'poor-man' lowest level atmospheric
+temperature check for precip type, though in the driver program rather
+within the SFLX code.
+
+DIURNAL ALBEDO - pass net solar (SOLNET in the calling argument list) to
+Noah LSM from the offline driver, or in the case of the coupled (meso
+Eta model) land-surface driver the solar net value implicitly accounts
+for the solar zenith angle correction of the solar albedo.
+
+PATCHY SNOW COVER MOISTURE FLUX - include separate calculation of snow 
+sublimation and evap from non-snow-covered surface.
+
+
+
+11.0	TECHNICAL REFERENCES
+
+11.1 Model Physics Lineage (OSU, AFGL/PL/AFRL, AFGWC/AFWA, NCEP, OH/OHD)
+
+Original soil hydrodynamic physics:
+Marht and Pan, 1984, Boundary Layer Meteorol, 29, 1-20.
+
+Stability-dependent Penman potential evaporation:
+Mahrt and Ek, 1984, J. Clim. Appl. Meteorol, 23, 222-234.
+
+Original soil thermodynamic physics:
+Pan and Mahrt, 1987, Boundary Layer Meteorol, 38, 185-202.
+
+Time-integration scheme advancements:
+Kalnay and Kanamitsu, 1988: Mon. Wea. Rev., 116, 1945-1958
+
+Canopy resistance advancements:
+Chen, F., K. Mitchell, et al, 1996:  J. Geophys. Res., 101, No. D3, 7251-7268 (Secs. 3.1.1-3.1.2)
+
+Surface infiltration advancements:
+Schaake, J., et al., 1996: J. Geophys. Res., 101, 7461-7475.
+
+Surface-layer turbulence advancements:
+Chen, F., Z. Janjic, and K. Mitchell, 1997, Boundary-Layer Meteorol, 85, 391-421.
+
+Bare soil evaporation and vegetation greenness advancements:
+Betts, A., F. Chen, K. Mitchell, and Z. Janjic, 1997: Mon. Wea. Rev., 125, 2896-2916.
+Gutman, G., and A. Ignatov, 1998: Int. J. Remote Sensing, 19, 1533-1543.
+Ek, M., K. Mitchell, E. Rogers, et al, 2001:  AMS 9th Mesoscale conference.
+Mitchell, K., M. Ek, D. Lohmann, et al, 2002:  AMS 16th Hydrology conference.
+
+Snowpack and frozen ground physics advancements:
+Koren, V., et al., 1999:  J. Geophys. Res., 101, No. D3, 7251-7268.
+Ek, M., K. Mitchell, E. Rogers, et al, 2001:  AMS 9th Mesoscale conference.
+Mitchell, K., M. Ek, D. Lohmann, et al, 2002:  AMS 16th Hydrology conference.
+
+For subsurface heat flux advancements:
+Peters-Lidard, C., M. Zion, and E. Wood, 1997: JGR, 102, No. D4, 4303-4324 (Sec. 2.1.2)
+Peters-Lidard, C., 1998: J. Atmos. Sci., 55, 1209-1224. (Sec. 2.b)
+Lunardini,V.,1981:Heat Transfer in Cold Climates. Van Nostrand Reinhold,1-731 (Sec. 4.12.1.1)
+Chang, S.,D.Hahn, C.-H.Yang, D.Norquist, and M.Ek, 1999: J. Appl. Meteorology, 38, 405-422.
+Ek, M., K. Mitchell, E. Rogers, et al, 2001:  AMS 9th Mesoscale conference.
+Mitchell, K., M. Ek, D. Lohmann, et al, 2002:  AMS 16th Hydrology conference.
+
+11.2 OSU Heritage: 1981-1998  (OSU)
+
+Uncoupled
+Mahrt and Pan, 1984, Boundary Layer Meteorol, 29, 1-20.
+Mahrt and Ek, 1984,  J. Clim. Appl. Meteorol, 23, 222-234.
+Pan and Mahrt, 1987, Boundary Layer Meteorol, 38,  185-202.
+OSU 1-D PBL Model User's Guide, Version 1.0.0, 1988.
+OSU 1-D PBL Model User's Guide, Version 1.0.4, 1991.
+Ek, M., and R. Cuenca, 1994, Boundary-Layer Meteorology, 70, 369-383.
+
+11.3 Air Force Lineage: 1985-present  (AFGWC, AFGL/PL/AFRL)
+
+Uncoupled
+Mitchell, 1985 (AFGWC Tech Report)
+Moore, B., K. Mitchell, et al., 1990: 20th AMS Conf. Ag and Forest Meteorology, 7-11.
+Chang, S.,D.Hahn, C.-H.Yang, D.Norquist, and M.Ek, 1999: J. Appl. Meteorology, 38, 405-422.
+
+Coupled 
+Yang, C.-H., et al., 1989, AFGL Tech Report, GL-TR-89-0158, 262 pp.
+
+11.4 NCEP Lineage: 1990-present  (NMC, NCEP)
+
+Uncoupled
+Chen, F., K. Mitchell, et al., 1996: J. Geophys. Res., 101, No. D3, 7251-7268 (Secs. 3.1.1, 3.1.2)
+Chen, F., and K. Mitchell, 1999: J. Meteorol. Soc. of Japan, 77, 167-182. (GSWP Special Issue)
+Mitchell, K., et al., 2000: 15th AMS Conf. on Hydrology, 1-4.
+Chen, T. H., Henderson-Sellers, et al, 1997:  J. Climate, 10, 1194-1215. (PILPS-2a)
+Qu, W., Henderson-Sellers, et al, 1998:  J. Atmos. Sci., 55, 1909-1927. (PILPS-2a)
+Liang, X., E. Wood, D. Lettenmaier, et al., 1998:  Global and Planetary Change, 19(1-4), 137-
+159. (PILPS-2c).
+Lohmann, D., D. Lettenmaier, Liang, X., E. Wood, et al., 1998:  Global Planet. Change, 19(1-4), 
+161-179. (PILPS-2c).
+Wood, E., D. Lettenmaier, X. Liang, D. Lohmann, et al., 1998:  Global Planet. Change, 19(1-4), 
+115-135. (PILPS-2c)
+Slater, A. G., C. A. Schlosser, et al., 2001:  J. Hydrometeorology, 2, 7-25. (PILPS-2d)
+Schlosser, C. A., A. G. Slater, et al., 2000:  Mon. Wea. Rev., 128, 301-321. (PILPS-2d)
+Bowling, L., D. Lettenmaier, B. Nijssen, J. Polcher, R. Koster and D. Lohmann, 2002, Global 
+Planet. Change (PILPS 2e).
+Boone, A., F. Habets, J. Noilhan, D. Lohmann, et al., 2002:  to be submitted to BAMS, JGR, or 
+J. Hydrometeorol. (Rhone/GLASS).
+
+Coupled
+Mitchell, K., 1994: 5th AMS Symposium on Global Change Studies, 192-198.
+Chen, F., Z. Janjic, and K. Mitchell, 1997, Boundary-Layer Meteorol, 85, 391-421.
+Betts, A., F. Chen, K. Mitchell, and Z. Janjic, 1997: Mon. Wea. Rev., 125, 2896-2916.
+Mitchell, K., et al., 1999: 14th AMS Conf. on Hydrology, 261-264.
+Marshall, C., et al., 1999: 14th AMS Conf. on Hydrology, 265-268.
+Mitchell, K., et al., 2000: 15th AMS Conf. on Hydrology, 180-183.
+Ek, M., K. Mitchell, E. Rogers, et al, 2001:  AMS 9th Mesoscale conference.
+Mitchell, K., M. Ek, D. Lohmann, et al, 2002:  AMS 16th Hydrology conference.
+
+11.5 OHD Heritage: 1995-present  (OH, HRL, OHD)
+
+Schaake et al., 1996: J. Geophys. Res., 101, 7461-7475.
+Koren, V., et al.,1999: J.Geophys.Res.,101,7251-7268
+
+11.6 External Validators of NCEP  Noah Model
+
+Uncoupled
+PILPS-2a (two papers)
+PILPS-2c (three papers)
+PILPS-2d (three papers)
+PILPS-2e (three papers)
+GSWP (several papers)
+Rhone/GLASS (one paper)
+
+Coupled
+Berbery, Rasmusson, Mitchell, 1996,  JGR, 101, 7305-7319.
+Yarosh, Ropelewski, Mitchell, 1996, JGR, 101, 23289-23298. 
+Betts, Chen, Mitchell, Janjic, 1997, Mon. Wea. Rev., 125, 2896-2916.
+Yucel, Shuttleworth, Washburne, Chen, 1998, Mon. Wea. Rev., 126, 1977-1991.
+Berbery, Mitchell, Benjamin, Smirnova, Ritchie, et al., 1999, JGR, 104, 19329-19348.
+Berbery and Rasmusson, 1999, Mon. Wea. Rev., 127, 2654-2673.  	
+Yarosh, Ropelewski, Berbery, 1999, JGR, 104, 19349-19360.
+Hinkelman, Ackerman, Marchand, 1999, JGR, 104, 19535-19549.
+Berbery and Collini, 2000, Mon. Wea. Rev., 128, 1328-1346.
+Fennessy and Shukla, 2000, J. Climate, 13, 2605-2627.
+Angevine and Mitchell, 2001, Mon. Wea. Rev., 129, 2761-2775.
+Marshall, Crawford, Mitchell, Stensrud, 2001, J. Hydrometeor., submitted.
+Berbery, 2001, J. Climate, 14, 121-137.
+
+11.7  NESDIS/ORA Land Surface Fields for NCEP Operational Use
+
+Daily N.H. 23-km snow cover:
+	Ramsay, B., 1998, Hydrological Processes, 12, 1537-1546.
+
+Annual cycle of monthly global vegetation greenness:
+	Gutman, G., and A. Ignatov, 1998,  Int. J. Remote Sensing, 19, 1533-1543.
+
+Annual cycle of monthly snow-free surface albedo:
+	Csiszar, I., and G. Gutman, 1999, J. Geophys. Res., 104, 6215-6228.
+
+
+26
+
