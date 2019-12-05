@@ -1,6 +1,6 @@
-This is the repository for Noah LSM version 2.7.GFS
+This is the repository for Noah LSM version 2.7.GFS from the current FV3GFS
 
-It contains the complete, selfcontained Noah LSM source code file, input control file, input atmospheric forcing file, and example execution-time LSM output files for a full one-year 1998 simulation. This simulation is valid at the Champaign, Illinois surface-flux site (40.01 N, 88.37 W) of NOAA/ARL investigator
+It contains the complete, selfcontained Noah LSM source code file (except the driver, all other subroutines (sflx.f, set_soilveg.f, module_sfc_diff.f) are copied from the GFSV16. input control file, input atmospheric forcing file, and example execution-time LSM output files for a full one-year 1998 simulation. This simulation is valid at the Champaign, Illinois surface-flux site (40.01 N, 88.37 W) of NOAA/ARL investigator
 Tilden Meyers. 
 
 doc:documentation and user's guide of Noah LSM
